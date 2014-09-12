@@ -10,7 +10,7 @@ package com.bizconit.homeinventory.model;
 public class Smarthub {
     private int id;
     private String name;
-    private int userId;
+    private String userId;
 
     public int getId() {
         return id;
@@ -28,11 +28,11 @@ public class Smarthub {
         this.name = name;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 }

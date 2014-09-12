@@ -9,16 +9,16 @@ package com.bizconit.homeinventory.model;
  */
 public class User {
 
-    private int id;
+    private String id;
     private String name;
     private int pin;
     private String familyMembers;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

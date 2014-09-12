@@ -1,5 +1,9 @@
 package com.bizconit.homeinventory;
 
+import com.bizconit.homeinventory.model.User;
+
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -52,7 +56,13 @@ public class HomeInventory {
 
     private static void registerSmartHub() {
         System.out.println("you are about to Register SmartHub");
-
+        System.out.println("Getting Existing Users...");
+        List<User> users = client.getExistingUsers();
+        Random random = new Random();
+        int randomNumber = random.nextInt(users.size() - 1);
+        User user = users.get(randomNumber);
+        System.out.println("Random User: " + user);
+        client.addSmarthub(user.getId());
     }
 
     private static void addUser() {
