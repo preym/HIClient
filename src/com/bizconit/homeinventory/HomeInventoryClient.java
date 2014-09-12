@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jfaker.JFaker;
@@ -108,11 +109,11 @@ public class HomeInventoryClient {
     }
 
     private User getNewFakeUser() {
-        System.out.println("Generating Fake User....");
+        System.out.println(" Generating Fake User....");
         User user = new User();
         user.setName(getRandomName());
         user.setPin(getRandomPin());
-        System.out.println("Created Fake User: " + user.toString());
+        System.out.println(" Created Fake User: " + user.toString());
         return user;
     }
 
@@ -205,7 +206,7 @@ public class HomeInventoryClient {
     }
 
     public List<Smarthub> getExistingSmarthubs() {
-        System.out.println("Getting Existing Smarthubs...");
+        System.out.println(" Getting Existing Smarthubs...");
         HttpURLConnection connection = null;
         try {
             URL url = new URL("http://premapp.azure-mobile.net/tables/smarthub");
@@ -226,5 +227,31 @@ public class HomeInventoryClient {
                 connection.disconnect();
         }
         return null;
+    }
+
+    public void updateUser(User user) {
+
+        String url = "http://premapp.azure-mobile.net/tables/user/" + user.getId();
+        try {
+            JSONObject json = new JSONObject();
+            json.put("family_members", user.getFamilyMembers());
+
+            HttpPatch post = new HttpPatch(url);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-Type", "application/json");
+            post.setEntity(new StringEntity(json.toString(), "UTF-8"));
+
+            DefaultHttpClient client = new DefaultHttpClient();
+            HttpResponse httpresponse = client.execute(post);
+            HttpEntity entity = httpresponse.getEntity();
+            InputStream stream = entity.getContent();
+            String result = convertStreamToString(stream);
+            System.out.println("Result: " + result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getCause());
+        }
+
+
     }
 }

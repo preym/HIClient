@@ -48,7 +48,7 @@ public class User {
 
 
     public String toString() {
-        return this.getId() + " " + getName() + " " + getPin();
+        return this.getId() + " " + getName() + " " + getPin() + " " + getFamilyMembers();
     }
 
 }
