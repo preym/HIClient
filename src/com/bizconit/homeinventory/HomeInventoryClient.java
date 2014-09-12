@@ -33,6 +33,11 @@ import java.util.Random;
  */
 public class HomeInventoryClient {
 
+    String[] products = {"Wheat", "Rice", "Sugar", "Maida", "Dalda", "Oil", "Tea Powder",
+            "Coffee Powder", "Milk", "Jeera", "Papad", "Washing Powder", "Utencils Cleaning",
+            "Moong Dal", "Ground Nuts", "Matki", "Murmure", "Kismis", "Eggs", "Bread", "Diaper",
+            "Wipes", "Kaju"};
+
     public void addUser() {
         User user = getNewFakeUser();
         String url = "http://premapp.azure-mobile.net/tables/user";
@@ -57,7 +62,6 @@ public class HomeInventoryClient {
             System.out.println(e.getCause());
         }
     }
-
 
     public List<User> getExistingUsers() {
         HttpURLConnection connection = null;
@@ -102,7 +106,6 @@ public class HomeInventoryClient {
         }
         return sb.toString();
     }
-
 
     private User getNewFakeUser() {
         System.out.println("Generating Fake User....");
@@ -161,12 +164,67 @@ public class HomeInventoryClient {
         return smarthub;
     }
 
-    public void postData(int smarthubId, String productName, float value) {
-        Inventory inventory = new Inventory();
+    public void postData(String smarthubId) {
+        Inventory inventory = getRandomData();
         inventory.setSmarthubId(smarthubId);
-        inventory.setProductName(productName);
-        inventory.setValue(value);
+
+        String url = "http://premapp.azure-mobile.net/tables/inventory";
+        try {
+            JSONObject json = new JSONObject();
+            json.put("product_name", inventory.getProductName());
+            json.put("value", inventory.getValue());
+            json.put("smarthub_id", inventory.getSmarthubId());
+
+            HttpPost post = new HttpPost(url);
+            post.setHeader("Accept", "application/json");
+            post.setHeader("Content-Type", "application/json");
+            post.setEntity(new StringEntity(json.toString(), "UTF-8"));
+
+            DefaultHttpClient client = new DefaultHttpClient();
+            HttpResponse httpresponse = client.execute(post);
+            HttpEntity entity = httpresponse.getEntity();
+            InputStream stream = entity.getContent();
+            String result = convertStreamToString(stream);
+            System.out.println("Result: " + result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getCause());
+        }
     }
 
+    private Inventory getRandomData() {
+        Inventory inventory = new Inventory();
+        inventory.setProductName(getRandomProduct());
+        inventory.setValue(HomeInventory.getRandomNumber(100));
+        return inventory;
+    }
 
+    private String getRandomProduct() {
+        int randomNumber = HomeInventory.getRandomNumber(products.length);
+        return products[randomNumber];
+    }
+
+    public List<Smarthub> getExistingSmarthubs() {
+        System.out.println("Getting Existing Smarthubs...");
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL("http://premapp.azure-mobile.net/tables/smarthub");
+            connection = (HttpURLConnection) url.openConnection();
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuffer stringBuffer = new StringBuffer();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuffer.append(line);
+            }
+            Smarthub[] users = new Gson().fromJson(stringBuffer.toString(), Smarthub[].class);
+            return Arrays.asList(users);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null)
+                connection.disconnect();
+        }
+        return null;
+    }
 }

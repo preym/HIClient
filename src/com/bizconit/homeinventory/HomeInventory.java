@@ -1,5 +1,6 @@
 package com.bizconit.homeinventory;
 
+import com.bizconit.homeinventory.model.Smarthub;
 import com.bizconit.homeinventory.model.User;
 
 import java.util.List;
@@ -38,10 +39,6 @@ public class HomeInventory {
                     System.out.println("Have a nice day, Bye");
                     System.exit(0);
                     break;
-//                case 5:
-//                    System.out.println("\u001b[2J");
-//                    System.out.flush();
-//                    break;
                 default:
                     System.out.println("Invalid Choice");
             }
@@ -50,19 +47,25 @@ public class HomeInventory {
     }
 
     private static void postData() {
-        System.out.println("you are about to post Data");
-
+        System.out.println("You are about to post Data");
+        List<Smarthub> smarthubs = client.getExistingSmarthubs();
+        Smarthub smarthub = smarthubs.get(getRandomNumber(smarthubs.size()));
+        client.postData(smarthub.getId());
     }
 
     private static void registerSmartHub() {
         System.out.println("you are about to Register SmartHub");
         System.out.println("Getting Existing Users...");
         List<User> users = client.getExistingUsers();
-        Random random = new Random();
-        int randomNumber = random.nextInt(users.size() - 1);
+        int randomNumber = getRandomNumber(users.size());
         User user = users.get(randomNumber);
         System.out.println("Random User: " + user);
         client.addSmarthub(user.getId());
+    }
+
+    public static int getRandomNumber(int range) {
+        Random random = new Random();
+        return random.nextInt(range - 1);
     }
 
     private static void addUser() {
@@ -75,7 +78,6 @@ public class HomeInventory {
         System.out.println("\t\t 2 -----> Register New Smarthub to Existing User");
         System.out.println("\t\t 3 -----> Post Data");
         System.out.println("\t\t 4 -----> Quit");
-//        System.out.println("\t\t 5 -----> Clear Screen");
         System.out.println("\tPlease Choose Your option:");
     }
 

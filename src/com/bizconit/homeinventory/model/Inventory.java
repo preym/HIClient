@@ -9,16 +9,16 @@ package com.bizconit.homeinventory.model;
  */
 public class Inventory {
 
-    private int id;
+    private String id;
     private String productName;
-    private int smarthubId;
+    private String smarthubId;
     private float value;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -30,11 +30,11 @@ public class Inventory {
         this.productName = productName;
     }
 
-    public int getSmarthubId() {
+    public String getSmarthubId() {
         return smarthubId;
     }
 
-    public void setSmarthubId(int smarthubId) {
+    public void setSmarthubId(String smarthubId) {
         this.smarthubId = smarthubId;
     }
 
