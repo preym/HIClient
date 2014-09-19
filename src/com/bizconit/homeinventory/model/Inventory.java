@@ -9,40 +9,50 @@ package com.bizconit.homeinventory.model;
  */
 public class Inventory {
 
-    private String id;
-    private String productName;
-    private String smarthubId;
-    private float value;
+  private String id;
+  private String productName;
+  private String smarthubId;
+  private float value;
 
-    public String getId() {
-        return id;
-    }
+  public String getProductType() {
+    return productType;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setProductType(String productType) {
+    this.productType = productType;
+  }
 
-    public String getProductName() {
-        return productName;
-    }
+  private String productType;
 
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getSmarthubId() {
-        return smarthubId;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setSmarthubId(String smarthubId) {
-        this.smarthubId = smarthubId;
-    }
+  public String getProductName() {
+    return productName;
+  }
 
-    public float getValue() {
-        return value;
-    }
+  public void setProductName(String productName) {
+    this.productName = productName;
+  }
 
-    public void setValue(float value) {
-        this.value = value;
-    }
+  public String getSmarthubId() {
+    return smarthubId;
+  }
+
+  public void setSmarthubId(String smarthubId) {
+    this.smarthubId = smarthubId;
+  }
+
+  public float getValue() {
+    return value;
+  }
+
+  public void setValue(float value) {
+    this.value = value;
+  }
 }
