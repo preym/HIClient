@@ -1,5 +1,6 @@
 package com.bizconit.homeinventory;
 
+import com.bizconit.homeinventory.model.Sensor;
 import com.bizconit.homeinventory.model.Smarthub;
 import com.bizconit.homeinventory.model.User;
 
@@ -39,6 +40,9 @@ public class HomeInventory {
           associateUsers();
           break;
         case 5:
+          addSensor();
+          break;
+        case 6:
           System.out.println(" Have a nice day, Bye");
           System.exit(0);
           break;
@@ -47,6 +51,20 @@ public class HomeInventory {
       }
     }
     while (option != 4);
+  }
+
+  private static void addSensor() {
+    System.out.println("You are about to register new Sensor");
+    Sensor sensor = new Sensor();
+    System.out.println("Registering Product with sensor...");
+    String[] randomProduct = client.getRandomProduct();
+    sensor.setProductType(randomProduct[1]);
+    sensor.setProductName(randomProduct[0]);
+    System.out.println("Selecting existing smarthub...");
+    List<Smarthub> smarthubs = client.getExistingSmarthubs();
+    int randomNumber = getRandomNumber(smarthubs.size());
+    sensor.setSmartHubId(smarthubs.get(randomNumber).getId());
+    client.addSensor(sensor);
   }
 
   private static void associateUsers() {
@@ -112,7 +130,8 @@ public class HomeInventory {
     System.out.println("\t 2 -----> Register New Smarthub to Existing User");
     System.out.println("\t 3 -----> Post Data");
     System.out.println("\t 4 -----> Associate User");
-    System.out.println("\t 5 -----> Quit");
+    System.out.println("\t 5 -----> Add Sensor");
+    System.out.println("\t 6 -----> Quit");
     System.out.println(" Please Choose Your option:");
   }
 

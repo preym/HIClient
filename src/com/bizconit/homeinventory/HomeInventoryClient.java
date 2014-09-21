@@ -1,6 +1,7 @@
 package com.bizconit.homeinventory;
 
 import com.bizconit.homeinventory.model.Inventory;
+import com.bizconit.homeinventory.model.Sensor;
 import com.bizconit.homeinventory.model.Smarthub;
 import com.bizconit.homeinventory.model.User;
 import com.google.gson.Gson;
@@ -41,9 +42,9 @@ public class HomeInventoryClient {
   private String BASE_URL = "https://aesop.azure-mobile.net/tables/";
 
   public HomeInventoryClient() {
-    String[] unitProducts = {"Eggs", "Optimum Nutrition", "Melissa and Doug", "Labrada Nutrition", ""};
-    String[] weightProducts = {"Wheat", "Rice", "Sugar", "Maida", "Dalda", "Oil", "Tea Powder", "Coffee Powder", "Milk", "Jeera", "Papad", "Washing Powder", "Utencils Cleaning",
-        "Moong Dal", "Ground Nuts", "Matki", "Murmure", "Kismis", "Kaju"};
+    String[] unitProducts = {"Eggs", "Optimum Nutrition", "Melissa and Doug", "Labrada Nutrition", "Coca-Cola Can", "Arrowhead Spring Water", "Frito-Lay Chips"};
+    String[] weightProducts = {"Wheat", "Rice", "Sugar", "Nutella Hazelnut Spread", "Wonderful Pistachios", "Oil", "Tea Powder", "Coffee Powder", "Milk", "Progresso Rich & Hearty Soup", "Folgers Classic Roast Ground Coffee", "Washing Powder", "Utencils Cleaning",
+        "Moong Dal", "Ground Nuts", "RID-X Septic Tank System", "Blue Diamond Almond Breeze", "Hellmann's Real Mayonnaise", "Kaju"};
 
     productsMap.put("unit", unitProducts);
     productsMap.put("weight", weightProducts);
@@ -95,7 +96,6 @@ public class HomeInventoryClient {
       if (connection != null)
         connection.disconnect();
     }
-
     return null;
   }
 
@@ -240,7 +240,7 @@ public class HomeInventoryClient {
     return inventory;
   }
 
-  private String[] getRandomProduct() {
+  public String[] getRandomProduct() {
     int randomNumber = new Random().nextInt(productsMap.size());
     ArrayList<String> keys = new ArrayList<>(productsMap.keySet());
     String productType = keys.get(randomNumber);
@@ -298,5 +298,31 @@ public class HomeInventoryClient {
     }
 
 
+  }
+
+  public void addSensor(Sensor sensor) {
+    System.out.println("Inserting Sensor...");
+    String url = BASE_URL + "sensor";
+    try {
+      JSONObject json = new JSONObject();
+      json.put("product_name", sensor.getProductName());
+      json.put("product_type", sensor.getProductType());
+      json.put("smarthub_id", sensor.getSmartHubId());
+
+      HttpPost post = new HttpPost(url);
+      post.setHeader("Accept", "application/json");
+      post.setHeader("Content-Type", "application/json");
+      post.setEntity(new StringEntity(json.toString(), "UTF-8"));
+
+      DefaultHttpClient client = new DefaultHttpClient();
+      HttpResponse httpresponse = client.execute(post);
+      HttpEntity entity = httpresponse.getEntity();
+      InputStream stream = entity.getContent();
+      String result = convertStreamToString(stream);
+      System.out.println("Result: " + result);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println(e.getCause());
+    }
   }
 }
