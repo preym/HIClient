@@ -178,11 +178,18 @@ public class HomeInventoryClient {
   }
 
   public void postData(Sensor sensor) {
+    float lastInsertedValue = getLastInsertedValue(sensor.getId());
+    System.out.println("lastInsertedValue:" + lastInsertedValue);
+    int randomNumber = HomeInventory.getRandomNumber(100);
+    System.out.println("randomValue:" + randomNumber);
+    if (lastInsertedValue != 0 && randomNumber >= lastInsertedValue) {
+      randomNumber = HomeInventory.getRandomNumber((int) lastInsertedValue);
+      System.out.println("regeneratedValue:" + randomNumber);
+    }
     Inventory inventory = new Inventory();
-    inventory.setValue(HomeInventory.getRandomNumber(100));
+    inventory.setValue(randomNumber);
     inventory.setSmarthub_id(sensor.getSmarthub_id());
     inventory.setSensor_id(sensor.getId());
-
     String url = BASE_URL + "inventory";
     try {
       JSONObject json = new JSONObject();
@@ -205,6 +212,33 @@ public class HomeInventoryClient {
       e.printStackTrace();
       System.out.println(e.getCause());
     }
+  }
+
+  private float getLastInsertedValue(String sensorId) {
+
+    HttpURLConnection connection = null;
+    try {
+      URL url = new URL(BASE_URL +
+          "inventory?$filter=(sensor_id+eq+'" + sensorId + "')&__systemProperties=updatedAt&$orderby=__updatedAt%20desc");
+      connection = (HttpURLConnection) url.openConnection();
+      InputStream inputStream = connection.getInputStream();
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuffer stringBuffer = new StringBuffer();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuffer.append(line);
+      }
+      Inventory[] inventories = new Gson().fromJson(stringBuffer.toString(), Inventory[].class);
+      if (inventories != null && inventories.length != 0) {
+        return inventories[0].getValue();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
+    return 0;
   }
 
   public String[] getRandomProduct() {
