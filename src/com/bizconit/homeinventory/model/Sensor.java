@@ -10,16 +10,16 @@ package com.bizconit.homeinventory.model;
 public class Sensor {
 
   private String id;
-  private String productName;
-  private String productType;
-  private String smartHubId;
+  private String product_name;
+  private String product_type;
+  private String smarthub_id;
 
-  public String getSmartHubId() {
-    return smartHubId;
+  public String getSmarthub_id() {
+    return smarthub_id;
   }
 
-  public void setSmartHubId(String smartHubId) {
-    this.smartHubId = smartHubId;
+  public void setSmarthub_id(String smarthub_id) {
+    this.smarthub_id = smarthub_id;
   }
 
   public String getId() {
@@ -30,19 +30,19 @@ public class Sensor {
     this.id = id;
   }
 
-  public String getProductName() {
-    return productName;
+  public String getProduct_name() {
+    return product_name;
   }
 
-  public void setProductName(String productName) {
-    this.productName = productName;
+  public void setProduct_name(String product_name) {
+    this.product_name = product_name;
   }
 
-  public String getProductType() {
-    return productType;
+  public String getProduct_type() {
+    return product_type;
   }
 
-  public void setProductType(String productType) {
-    this.productType = productType;
+  public void setProduct_type(String product_type) {
+    this.product_type = product_type;
   }
 }

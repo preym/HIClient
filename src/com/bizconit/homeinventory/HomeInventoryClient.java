@@ -169,31 +169,6 @@ public class HomeInventoryClient {
     }
   }
 
-//  public void addStatic() {
-//
-//    String url = BASE_URL + "product_type";
-//
-//    try {
-//      JSONObject json = new JSONObject();
-//      json.put("product_type", "unit");
-//      json.put("threshold_value", "10");
-//      HttpPost post = new HttpPost(url);
-//      post.setHeader("Accept", "application/json");
-//      post.setHeader("Content-Type", "application/json");
-//      post.setEntity(new StringEntity(json.toString(), "UTF-8"));
-//
-//      DefaultHttpClient client = new DefaultHttpClient();
-//      HttpResponse httpresponse = client.execute(post);
-//      HttpEntity entity = httpresponse.getEntity();
-//      InputStream stream = entity.getContent();
-//      String result = convertStreamToString(stream);
-//      System.out.println("Result: " + result);
-//    } catch (Exception e) {
-//
-//    }
-//
-//  }
-
   private Smarthub getNewFakeSmartHub() {
     Smarthub smarthub = new Smarthub();
     JFaker jFaker = new JFaker();
@@ -202,17 +177,18 @@ public class HomeInventoryClient {
     return smarthub;
   }
 
-  public void postData(String smarthubId) {
-    Inventory inventory = getRandomData();
-    inventory.setSmarthubId(smarthubId);
+  public void postData(Sensor sensor) {
+    Inventory inventory = new Inventory();
+    inventory.setValue(HomeInventory.getRandomNumber(100));
+    inventory.setSmarthub_id(sensor.getSmarthub_id());
+    inventory.setSensor_id(sensor.getId());
 
     String url = BASE_URL + "inventory";
     try {
       JSONObject json = new JSONObject();
-      json.put("product_name", inventory.getProductName());
       json.put("value", inventory.getValue());
-      json.put("smarthub_id", inventory.getSmarthubId());
-      json.put("product_type", inventory.getProductType());
+      json.put("sensor_id", inventory.getSensor_id());
+      json.put("smarthub_id", inventory.getSmarthub_id());
 
       HttpPost post = new HttpPost(url);
       post.setHeader("Accept", "application/json");
@@ -229,15 +205,6 @@ public class HomeInventoryClient {
       e.printStackTrace();
       System.out.println(e.getCause());
     }
-  }
-
-  private Inventory getRandomData() {
-    Inventory inventory = new Inventory();
-    String[] product = getRandomProduct();
-    inventory.setProductName(product[0]);
-    inventory.setValue(HomeInventory.getRandomNumber(100));
-    inventory.setProductType(product[1]);
-    return inventory;
   }
 
   public String[] getRandomProduct() {
@@ -280,7 +247,7 @@ public class HomeInventoryClient {
     String url = BASE_URL + "user/" + user.getId();
     try {
       JSONObject json = new JSONObject();
-      json.put("family_members", user.getFamilyMembers());
+      json.put("family_members", user.getFamily_members());
       HttpPatch post = new HttpPatch(url);
       post.setHeader("Accept", "application/json");
       post.setHeader("Content-Type", "application/json");
@@ -305,9 +272,9 @@ public class HomeInventoryClient {
     String url = BASE_URL + "sensor";
     try {
       JSONObject json = new JSONObject();
-      json.put("product_name", sensor.getProductName());
-      json.put("product_type", sensor.getProductType());
-      json.put("smarthub_id", sensor.getSmartHubId());
+      json.put("product_name", sensor.getProduct_name());
+      json.put("product_type", sensor.getProduct_type());
+      json.put("smarthub_id", sensor.getSmarthub_id());
 
       HttpPost post = new HttpPost(url);
       post.setHeader("Accept", "application/json");
@@ -324,5 +291,30 @@ public class HomeInventoryClient {
       e.printStackTrace();
       System.out.println(e.getCause());
     }
+  }
+
+  public List<Sensor> getExistingSensors() {
+    System.out.println(" Getting Existing Sensors...");
+    HttpURLConnection connection = null;
+    try {
+      URL url = new URL(BASE_URL + "sensor");
+      connection = (HttpURLConnection) url.openConnection();
+      InputStream inputStream = connection.getInputStream();
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuffer stringBuffer = new StringBuffer();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuffer.append(line);
+      }
+      Sensor[] sensors = new Gson().fromJson(stringBuffer.toString(), Sensor[].class);
+      System.out.println("" + sensors.length);
+      return Arrays.asList(sensors);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
+    return null;
   }
 }

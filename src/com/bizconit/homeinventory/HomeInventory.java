@@ -58,12 +58,12 @@ public class HomeInventory {
     Sensor sensor = new Sensor();
     System.out.println("Registering Product with sensor...");
     String[] randomProduct = client.getRandomProduct();
-    sensor.setProductType(randomProduct[1]);
-    sensor.setProductName(randomProduct[0]);
+    sensor.setProduct_type(randomProduct[1]);
+    sensor.setProduct_name(randomProduct[0]);
     System.out.println("Selecting existing smarthub...");
     List<Smarthub> smarthubs = client.getExistingSmarthubs();
     int randomNumber = getRandomNumber(smarthubs.size());
-    sensor.setSmartHubId(smarthubs.get(randomNumber).getId());
+    sensor.setSmarthub_id(smarthubs.get(randomNumber).getId());
     client.addSensor(sensor);
   }
 
@@ -78,11 +78,14 @@ public class HomeInventory {
       child = users.get(getRandomNumber(users.size()));
     }
     System.out.println(" Child User: " + child);
-    String familyMembers = parent.getFamilyMembers();
+    String familyMembers = parent.getFamily_members();
+    System.out.println("familyMembers:" + familyMembers);
     if (familyMembers != null) {
       boolean isExist = false;
       String[] familyList = familyMembers.split(",");
       for (int index = 0; index < familyList.length; index++) {
+        System.out.println("familyMembersList:" + familyList[index]);
+
         if (familyList[index].equals(child.getId())) {
           isExist = true;
           break;
@@ -90,19 +93,21 @@ public class HomeInventory {
       }
       if (!isExist) {
         familyMembers = familyMembers + "," + child.getId();
+        System.out.println("familyMembers:" + familyMembers);
       }
     } else {
       familyMembers = child.getId();
     }
-    parent.setFamilyMembers(familyMembers);
+    parent.setFamily_members(familyMembers);
     client.updateUser(parent);
   }
 
+
   private static void postData() {
     System.out.println(" You are about to post Data");
-    List<Smarthub> smarthubs = client.getExistingSmarthubs();
-    Smarthub smarthub = smarthubs.get(getRandomNumber(smarthubs.size()));
-    client.postData(smarthub.getId());
+    List<Sensor> smarthubs = client.getExistingSensors();
+    Sensor sensor = smarthubs.get(getRandomNumber(smarthubs.size()));
+    client.postData(sensor);
   }
 
   private static void registerSmartHub() {
@@ -117,7 +122,7 @@ public class HomeInventory {
 
   public static int getRandomNumber(int range) {
     Random random = new Random();
-    return random.nextInt(range - 1);
+    return random.nextInt(Math.max((range - 1), 0));
   }
 
   private static void addUser() {

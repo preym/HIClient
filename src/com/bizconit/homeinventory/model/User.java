@@ -12,7 +12,7 @@ public class User {
     private String id;
     private String name;
     private int pin;
-    private String familyMembers;
+    private String family_members;
 
     public String getId() {
         return id;
@@ -38,17 +38,17 @@ public class User {
         this.pin = pin;
     }
 
-    public String getFamilyMembers() {
-        return familyMembers;
+    public String getFamily_members() {
+        return family_members;
     }
 
-    public void setFamilyMembers(String familyMembers) {
-        this.familyMembers = familyMembers;
+    public void setFamily_members(String family_members) {
+        this.family_members = family_members;
     }
 
 
     public String toString() {
-        return this.getId() + " " + getName() + " " + getPin() + " " + getFamilyMembers();
+        return this.getId() + " " + getName() + " " + getPin() + " " + getFamily_members();
     }
 
 }
