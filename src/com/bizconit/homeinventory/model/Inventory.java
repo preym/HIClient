@@ -1,5 +1,7 @@
 package com.bizconit.homeinventory.model;
 
+import java.sql.Timestamp;
+
 /**
  * Created with IntelliJ IDEA.
  * User: ehc
@@ -14,6 +16,16 @@ public class Inventory {
   private float value;
   private String sensor_id;
   private String productType;
+
+  public Timestamp getInserted_at() {
+    return inserted_at;
+  }
+
+  public void setInserted_at(Timestamp inserted_at) {
+    this.inserted_at = inserted_at;
+  }
+
+  private Timestamp inserted_at;
 
   public String getSensor_id() {
     return sensor_id;

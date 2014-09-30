@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -178,7 +179,15 @@ public class HomeInventoryClient {
   }
 
   public void postData(Sensor sensor) {
-    float lastInsertedValue = getLastInsertedValue(sensor.getId());
+    Inventory lastInventory = getLastInsertedInventory(sensor.getId());
+    float lastInsertedValue = 0;
+    Timestamp lastTimestamp = null;
+    if (lastInventory != null) {
+      lastInsertedValue = lastInventory.getValue();
+      lastTimestamp = lastInventory.getInserted_at();
+    }
+
+    System.out.println("Last InsertedAt: " + lastTimestamp);
     System.out.println("lastInsertedValue:" + lastInsertedValue);
     int randomNumber = HomeInventory.getRandomNumber(100);
     System.out.println("randomValue:" + randomNumber);
@@ -186,16 +195,25 @@ public class HomeInventoryClient {
       randomNumber = HomeInventory.getRandomNumber((int) lastInsertedValue);
       System.out.println("regeneratedValue:" + randomNumber);
     }
+    Timestamp timestamp = getRandomTimestamp("2014-08-01 00:00:00");
+    System.out.println("Random Timestamp: " + timestamp);
+    if (lastTimestamp != null && lastTimestamp.getTime() >= timestamp.getTime()) {
+      timestamp = getRandomTimestamp(lastTimestamp.toString());
+      System.out.println("Re generated Random Timestamp: " + timestamp);
+    }
+
     Inventory inventory = new Inventory();
     inventory.setValue(randomNumber);
     inventory.setSmarthub_id(sensor.getSmarthub_id());
     inventory.setSensor_id(sensor.getId());
+    inventory.setInserted_at(timestamp);
     String url = BASE_URL + "inventory";
     try {
       JSONObject json = new JSONObject();
       json.put("value", inventory.getValue());
       json.put("sensor_id", inventory.getSensor_id());
       json.put("smarthub_id", inventory.getSmarthub_id());
+      json.put("inserted_at", inventory.getInserted_at());
 
       HttpPost post = new HttpPost(url);
       post.setHeader("Accept", "application/json");
@@ -212,6 +230,40 @@ public class HomeInventoryClient {
       e.printStackTrace();
       System.out.println(e.getCause());
     }
+  }
+
+  private Timestamp getRandomTimestamp(String startTimestamp) {
+    long offset = Timestamp.valueOf(startTimestamp).getTime();
+    long end = new Timestamp(new Date().getTime()).getTime();
+    long diff = end - offset + 1;
+    Timestamp rand = new Timestamp(offset + (long) (Math.random() * diff));
+    return rand;
+  }
+
+  private Inventory getLastInsertedInventory(String sensorId) {
+    HttpURLConnection connection = null;
+    try {
+      URL url = new URL(BASE_URL +
+          "inventory?$filter=(sensor_id+eq+'" + sensorId + "')&__systemProperties=updatedAt&$orderby=__updatedAt%20desc");
+      connection = (HttpURLConnection) url.openConnection();
+      InputStream inputStream = connection.getInputStream();
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuffer stringBuffer = new StringBuffer();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuffer.append(line);
+      }
+      Inventory[] inventories = new Gson().fromJson(stringBuffer.toString(), Inventory[].class);
+      if (inventories != null && inventories.length != 0) {
+        return inventories[0];
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
+    return null;
   }
 
   private float getLastInsertedValue(String sensorId) {

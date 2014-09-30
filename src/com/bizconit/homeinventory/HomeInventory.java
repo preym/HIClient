@@ -6,7 +6,6 @@ import com.bizconit.homeinventory.model.User;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,36 +20,43 @@ public class HomeInventory {
 
   public static void main(String... args) {
     System.out.println("####### Welcome to HomeInventoryClient #######");
-    int option;
-    do {
-      promtUser();
-      Scanner scanner = new Scanner(System.in);
-      option = scanner.nextInt();
-      switch (option) {
-        case 1:
-          addUser();
-          break;
-        case 2:
-          registerSmartHub();
-          break;
-        case 3:
-          postData();
-          break;
-        case 4:
-          associateUsers();
-          break;
-        case 5:
-          addSensor();
-          break;
-        case 6:
-          System.out.println(" Have a nice day, Bye");
-          System.exit(0);
-          break;
-        default:
-          System.out.println(" Invalid Choice");
-      }
+
+
+    for (int i = 0; i < 100; i++) {
+      postData();
     }
-    while (option != 4);
+
+
+//    int option;
+//    do {
+//      promtUser();
+//      Scanner scanner = new Scanner(System.in);
+//      option = scanner.nextInt();
+//      switch (option) {
+//        case 1:
+//          addUser();
+//          break;
+//        case 2:
+//          registerSmartHub();
+//          break;
+//        case 3:
+//          postData();
+//          break;
+//        case 4:
+//          associateUsers();
+//          break;
+//        case 5:
+//          addSensor();
+//          break;
+//        case 6:
+//          System.out.println(" Have a nice day, Bye");
+//          System.exit(0);
+//          break;
+//        default:
+//          System.out.println(" Invalid Choice");
+//      }
+//    }
+//    while (option != 4);
   }
 
   private static void addSensor() {
@@ -101,7 +107,6 @@ public class HomeInventory {
     parent.setFamily_members(familyMembers);
     client.updateUser(parent);
   }
-
 
   private static void postData() {
     System.out.println(" You are about to post Data");
