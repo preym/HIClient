@@ -16,6 +16,24 @@ public class Inventory {
   private float value;
   private String sensor_id;
   private String productType;
+  private String weight;
+  private float temperature;
+
+  public String getWeight() {
+    return weight;
+  }
+
+  public void setWeight(String weight) {
+    this.weight = weight;
+  }
+
+  public float getTemperature() {
+    return temperature;
+  }
+
+  public void setTemperature(float temperature) {
+    this.temperature = temperature;
+  }
 
   public Timestamp getInserted_at() {
     return inserted_at;

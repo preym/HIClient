@@ -20,11 +20,12 @@ public class HomeInventory {
 
   public static void main(String... args) {
     System.out.println("####### Welcome to HomeInventoryClient #######");
+    postData();
 
 
-    for (int i = 0; i < 100; i++) {
-      postData();
-    }
+//    for (int i = 0; i < 100; i++) {
+//      postData();
+//    }
 
 
 //    int option;
@@ -66,11 +67,28 @@ public class HomeInventory {
     String[] randomProduct = client.getRandomProduct();
     sensor.setProduct_type(randomProduct[1]);
     sensor.setProduct_name(randomProduct[0]);
+    System.out.println("ProductName: " + sensor.getProduct_name());
     System.out.println("Selecting existing smarthub...");
     List<Smarthub> smarthubs = client.getExistingSmarthubs();
-    int randomNumber = getRandomNumber(smarthubs.size());
+    int randomNumber = getRandomNumber(smarthubs.size() + 1);
+//    Smarthub smarthub = client.getExistingSmarthub("2D71CACD-1473-4D54-910C-EA10799AB2F2");
     sensor.setSmarthub_id(smarthubs.get(randomNumber).getId());
-    client.addSensor(sensor);
+
+    boolean isExist = false;
+
+
+    List<Sensor> sensors = client.getExistingSensors(smarthubs.get(randomNumber).getId());
+    for (Sensor exiSensor : sensors) {
+      if (exiSensor.getProduct_name().equalsIgnoreCase(sensor.getProduct_name())) {
+        System.out.println("Sensor already Exist");
+        isExist = true;
+      }
+    }
+
+    if (isExist == false) {
+      System.out.println("Sensor Not Exist");
+      client.addSensor(sensor);
+    }
   }
 
   private static void associateUsers() {
@@ -81,7 +99,7 @@ public class HomeInventory {
     System.out.println(" Parent User: " + parent);
     User child = users.get(getRandomNumber(users.size()));
     while (parent.getId().equals(child.getId())) {
-      child = users.get(getRandomNumber(users.size()));
+      child = users.get(getRandomNumber(users.size() + 1));
     }
     System.out.println(" Child User: " + child);
     String familyMembers = parent.getFamily_members();
@@ -110,19 +128,21 @@ public class HomeInventory {
 
   private static void postData() {
     System.out.println(" You are about to post Data");
-    List<Sensor> smarthubs = client.getExistingSensors();
-    Sensor sensor = smarthubs.get(getRandomNumber(smarthubs.size()));
-    client.postData(sensor);
+    List<Sensor> sensors = client.getExistingSensors();
+//    Sensor sensor = sensors.get(getRandomNumber(sensors.size()+1));
+//    Sensor sensor = client.getExistingSensor("");
+    for (int i = 0; i < sensors.size(); i++)
+      client.postData(sensors.get(i));
   }
 
   private static void registerSmartHub() {
     System.out.println(" You are about to Register SmartHub");
-    System.out.println(" Getting Existing Users...");
-    List<User> users = client.getExistingUsers();
-    int randomNumber = getRandomNumber(users.size());
-    User user = users.get(randomNumber);
-    System.out.println(" Random User: " + user);
-    client.addSmarthub(user.getId());
+//    System.out.println(" Getting Existing Users...");
+//    List<User> users = client.getExistingUsers();
+//    int randomNumber = getRandomNumber(users.size());
+//    User user = users.get(randomNumber);
+//    System.out.println(" Random User: " + user);
+    client.addSmarthub("F5938FA6-6E7A-4CC6-8052-4D516136CD97");
   }
 
   public static int getRandomNumber(int range) {

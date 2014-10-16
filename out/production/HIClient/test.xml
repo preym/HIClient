@@ -1,0 +1,26 @@
+<items>
+    <item type="current" id="1">
+        <details>
+        </details>
+        <members>
+            <member id="2" relation="affected"/>
+            <member id="3" relation="causedBy"/>
+        </members>
+    </item>
+    <item type="causedBy" id="3">
+        <details>
+        </details>
+        <members>
+            <member id="1" relation="current"/>
+            <member id="3" relation="affected"/>
+        </members>
+    </item>
+    <item type="affected" id="3">
+        <details>
+        </details>
+        <members>
+            <member id="1" relation="current"/>
+            <member id="2" relation="causedBy"/>
+        </members>
+    </item>
+</items>

@@ -39,13 +39,15 @@ public class HomeInventoryClient {
       "Moong Dal", "Ground Nuts", "Matki", "Murmure", "Kismis", "Eggs", "Bread", "Diaper",
       "Wipes", "Kaju"};
   Map<String, String[]> productsMap = new HashMap<>();
-  String[] smartHubLocations = {"office", "home", "car"};
+  String[] smartHubLocations = {"office", "home"};
   private String BASE_URL = "https://aesop.azure-mobile.net/tables/";
+  private int temperatures[] = {25, 30};
+  private String hexValues[] = {"0x05e0", "0x019d", ""};
 
   public HomeInventoryClient() {
-    String[] unitProducts = {"Eggs", "Optimum Nutrition", "Melissa and Doug", "Labrada Nutrition", "Coca-Cola Can", "Arrowhead Spring Water", "Frito-Lay Chips"};
-    String[] weightProducts = {"Wheat", "Rice", "Sugar", "Nutella Hazelnut Spread", "Wonderful Pistachios", "Oil", "Tea Powder", "Coffee Powder", "Milk", "Progresso Rich & Hearty Soup", "Folgers Classic Roast Ground Coffee", "Washing Powder", "Utencils Cleaning",
-        "Moong Dal", "Ground Nuts", "RID-X Septic Tank System", "Blue Diamond Almond Breeze", "Hellmann's Real Mayonnaise", "Kaju"};
+    String[] unitProducts = {"Eggs", "Optimum Nutrition", "Labrada Nutrition", "Coca-Cola Can", "Benadryl", "Vicodin"};
+    String[] weightProducts = {"Wheat", "Rice", "Sugar", "Oil", "Tea Powder", "Coffee Powder", "Milk", "Washing Powder", "Utencils Cleaning",
+        "Moong Dal", "Ground Nuts", "Wipes", "Kaju"};
 
     productsMap.put("unit", unitProducts);
     productsMap.put("weight", weightProducts);
@@ -151,7 +153,8 @@ public class HomeInventoryClient {
       JSONObject json = new JSONObject();
       json.put("name", smarthub.getName());
       json.put("user_id", smarthub.getUserId());
-      json.put("location", smartHubLocations[HomeInventory.getRandomNumber(smartHubLocations.length)]);
+//      json.put("location", smartHubLocations[HomeInventory.getRandomNumber(smartHubLocations.length)]);
+      json.put("location", "Office");
 
       HttpPost post = new HttpPost(url);
       post.setHeader("Accept", "application/json");
@@ -180,19 +183,19 @@ public class HomeInventoryClient {
 
   public void postData(Sensor sensor) {
     Inventory lastInventory = getLastInsertedInventory(sensor.getId());
-    float lastInsertedValue = 0;
+    int lastInsertedValue = 0;
     Timestamp lastTimestamp = null;
     if (lastInventory != null) {
-      lastInsertedValue = lastInventory.getValue();
+      lastInsertedValue = Integer.parseInt(lastInventory.getWeight(), 16);
       lastTimestamp = lastInventory.getInserted_at();
     }
 
     System.out.println("Last InsertedAt: " + lastTimestamp);
     System.out.println("lastInsertedValue:" + lastInsertedValue);
-    int randomNumber = HomeInventory.getRandomNumber(100);
+    int randomNumber = new Random().nextInt(3000 - 100) + 100;
     System.out.println("randomValue:" + randomNumber);
     if (lastInsertedValue != 0 && randomNumber >= lastInsertedValue) {
-      randomNumber = HomeInventory.getRandomNumber((int) lastInsertedValue);
+      randomNumber = new Random().nextInt(lastInsertedValue - 100) + 100;
       System.out.println("regeneratedValue:" + randomNumber);
     }
     Timestamp timestamp = getRandomTimestamp("2014-08-01 00:00:00");
@@ -203,17 +206,21 @@ public class HomeInventoryClient {
     }
 
     Inventory inventory = new Inventory();
-    inventory.setValue(randomNumber);
     inventory.setSmarthub_id(sensor.getSmarthub_id());
     inventory.setSensor_id(sensor.getId());
     inventory.setInserted_at(timestamp);
+    inventory.setWeight(Integer.toHexString(randomNumber));
+
+    inventory.setTemperature(temperatures[HomeInventory.getRandomNumber(3)]);
+    System.out.println("Temperature: " + inventory.getTemperature());
     String url = BASE_URL + "inventory";
     try {
       JSONObject json = new JSONObject();
-      json.put("value", inventory.getValue());
       json.put("sensor_id", inventory.getSensor_id());
       json.put("smarthub_id", inventory.getSmarthub_id());
       json.put("inserted_at", inventory.getInserted_at());
+      json.put("weight", inventory.getWeight());
+      json.put("temperature", inventory.getTemperature());
 
       HttpPost post = new HttpPost(url);
       post.setHeader("Accept", "application/json");
@@ -403,4 +410,81 @@ public class HomeInventoryClient {
     }
     return null;
   }
+
+  public List<Sensor> getExistingSensors(String smarthubId) {
+    System.out.println(" Getting Existing Sensors...");
+    HttpURLConnection connection = null;
+    try {
+      URL url = new URL(BASE_URL + "sensor?$filter=(smarthub_id+eq+'" + smarthubId + "')");
+      connection = (HttpURLConnection) url.openConnection();
+      InputStream inputStream = connection.getInputStream();
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuffer stringBuffer = new StringBuffer();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuffer.append(line);
+      }
+      Sensor[] sensors = new Gson().fromJson(stringBuffer.toString(), Sensor[].class);
+      System.out.println("" + sensors.length);
+      return Arrays.asList(sensors);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
+    return null;
+  }
+
+  public Sensor getExistingSensor(String id) {
+    System.out.println(" Getting Existing Sensors...");
+    HttpURLConnection connection = null;
+    try {
+      URL url = new URL(BASE_URL + "sensor?$filter=(id+eq+" + id + ")");
+      connection = (HttpURLConnection) url.openConnection();
+      InputStream inputStream = connection.getInputStream();
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuffer stringBuffer = new StringBuffer();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuffer.append(line);
+      }
+      Sensor sensor = new Gson().fromJson(stringBuffer.toString(), Sensor.class);
+      return sensor;
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
+    return null;
+  }
+
+  public Smarthub getExistingSmarthub(String id) {
+
+    System.out.println(" Getting Existing Smarthubs...");
+    HttpURLConnection connection = null;
+    try {
+      URL url = new URL(BASE_URL + "smarthub?$filter=(id+eq+'" + id + "')");
+      connection = (HttpURLConnection) url.openConnection();
+      InputStream inputStream = connection.getInputStream();
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuffer stringBuffer = new StringBuffer();
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        stringBuffer.append(line);
+      }
+      Smarthub[] smarthub = new Gson().fromJson(stringBuffer.toString(), Smarthub[].class);
+      return smarthub[0];
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (connection != null)
+        connection.disconnect();
+    }
+    return null;
+
+
+  }
 }
+
